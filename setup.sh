@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file_name = "quizmaster_23f2001161"
+file_name="quizmaster_23f2001161"
 
 if ! command -v python3 &> /dev/null
 then
