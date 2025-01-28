@@ -90,6 +90,7 @@ class Attempt(Base):
     score = relationship("Score", back_populates="attempt")
     user = relationship("User", back_populates="attempt")
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+def db_innit():
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
     
