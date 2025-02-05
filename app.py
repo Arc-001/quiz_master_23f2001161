@@ -1,26 +1,71 @@
-from models.database_innit import db_innit
+from models.database_innit import *
 from flask import Flask, render_template, request
 from flask import redirect,request,url_for
-from flask_login import LoginManager
+import flask_login
 
-#global login manager
-login_manager = LoginManager()
+#global login managerW
+login_manager = flask_login.LoginManager()
 
 
 app = Flask(__name__)
+db_innit()
+app.secret_key = 'super secret string'
+
+class user(flask_login.UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(email):
+    in_db = User.query.filter_by(username = email).first()
+    if in_db:
+        user_ = user()
+        user.id = email
+        return user
+    else:
+        return
+    
+@login_manager.request_loader
+def request_loader(request):
+    email = request.form.get('email')
+    in_db = User.query.filter_by(username = email).first()
+    if in_db:
+        user_ = user()
+        user.id = email
+        return user
+    else:
+        return
+    
+
+        
+    
+
 
 # #integrate login manager to 
-# login_manager.init_app(app)
+login_manager.init_app(app)
 
-@app.route('/',methods = ['GET'])
-def login():
+@app.get('/')
+def login_get():
     return render_template('index.html')
 
-@app.route('/',methods = ['POST'])
+@app.post('/')
 def login_post():
     print (request.form)
-    return redirect(url_for('login'))
+    email = request.form['email']
+    password = request.form['password']
+    in_db = User.query.filter_by(username = email).first()
+    if in_db:
+        if in_db.password == password:
+            user_ = user()
+            user.id = email
+            flask_login.login_user(user_)
+            return redirect(url_for('protected'))
+    return 'Bad login'
 
+
+@app.get('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_logincurrent_user.id
 
 app.run(debug = True)
 
