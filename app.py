@@ -8,7 +8,7 @@ login_manager = flask_login.LoginManager()
 
 
 app = Flask(__name__)
-db_innit()
+
 app.secret_key = 'super secret string'
 
 class user(flask_login.UserMixin):
@@ -16,9 +16,16 @@ class user(flask_login.UserMixin):
 
 @login_manager.user_loader
 def user_loader(email):
-    in_db = User.query.filter_by(username = email).first()
+
+
+    session = get_session()
+    in_db = session.query(User).filter_by(username = email).first()
+    close_session(session)
+
+
     if in_db:
         user_ = user()
+        print (in_db)
         user.id = email
         return user
     else:
@@ -27,7 +34,12 @@ def user_loader(email):
 @login_manager.request_loader
 def request_loader(request):
     email = request.form.get('email')
-    in_db = User.query.filter_by(username = email).first()
+
+
+    session = get_session()
+    in_db = session.query(User).filter_by(username = email).first()
+    close_session(session)
+
     if in_db:
         user_ = user()
         user.id = email
@@ -52,7 +64,13 @@ def login_post():
     print (request.form)
     email = request.form['email']
     password = request.form['password']
-    in_db = User.query.filter_by(username = email).first()
+    
+    session = get_session()
+    print (email)
+    in_db = session.query(User).filter_by(username = email).first()
+    print (in_db)
+    close_session(session)
+
     if in_db:
         if in_db.password == password:
             user_ = user()
@@ -65,7 +83,14 @@ def login_post():
 @app.get('/protected')
 @flask_login.login_required
 def protected():
-    return 'Logged in as: ' + flask_logincurrent_user.id
+    return 'Logged in as: ' + flask_login.current_user.id
+
+@app.get('/logout')
+@flask_login.login_required
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+
 
 app.run(debug = True)
 

@@ -97,13 +97,31 @@ def db_innit():
     Session = sessionmaker(bind=engine)
     Session.configure(bind=engine)
     session = Session()
-    default_admin = User(full_name = "admin", username = "admin", password = "admin", is_admin = True)
-    session.add(default_admin)
-    session.commit()
+    result = session.query(User).filter_by(username = "admin").first()
+    if result == None:
+        print("Creating default admin, username: admin, password: admin, Please change password after login")
+        default_admin = User(full_name = "admin", username = "admin", password = "admin", is_admin = True)
+        session.add(default_admin)
+        session.commit()
     session.close()
     print("Database created successfully")
 
+def get_session():
+    Session = sessionmaker(bind=engine)
+    Session.configure(bind=engine)
+    session = Session()
+    return session
 
-db_innit()
+def close_session(session):
+    session.close()
 
+
+
+if __name__ == "__main__":
+    s = get_session()
+    print(s.query(User).filter_by(username = "as9228@gmail.com").all())
+    print("Not to be run directly, call as module")
+else:
+    db_innit()
+    print("Database created successfully")
  
