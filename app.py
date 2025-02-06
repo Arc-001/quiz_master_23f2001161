@@ -76,14 +76,15 @@ def login_post():
             user_ = user()
             user.id = email
             flask_login.login_user(user_)
-            return redirect(url_for('protected'))
+            return redirect(url_for('home'))
     return 'Bad login'
 
 
-@app.get('/protected')
+@app.get('/home')
 @flask_login.login_required
-def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
+def home():
+    return render_template('home.html', name = flask_login.current_user.id)
+    # return 'Logged in as: ' + flask_login.current_user.id
 
 @app.get('/logout')
 @flask_login.login_required
