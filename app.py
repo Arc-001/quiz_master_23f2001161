@@ -86,6 +86,10 @@ def home():
     return render_template('home.html', name = flask_login.current_user.id)
     # return 'Logged in as: ' + flask_login.current_user.id
 
+@app.get('/register')
+def register_get():
+    return render_template('register.html')
+
 @app.get('/logout')
 @flask_login.login_required
 def logout():
