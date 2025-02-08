@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Table,Boolean
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date,DateTime, Table,Boolean
 from sqlalchemy.orm import DeclarativeBase, relationship,backref,sessionmaker
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -33,7 +33,7 @@ class Quiz(Base):
     chapter_id = Column(Integer, ForeignKey('chapter.chapter_id'))
     name = Column(String, nullable = False)
     description = Column(String)
-    date_of_quiz = Column(DateTime, default = datetime.utcnow)
+    date_of_quiz = Column(Date, default = datetime.utcnow)
     time_duration = Column(String, default = "NA")
     remarks = Column(String, default = "NA")
     score = relationship("Score", back_populates="quiz", cascade="all, delete, delete-orphan")
@@ -60,10 +60,11 @@ class User(Base):
     __tablename__ = "user"
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     full_name = Column(String, nullable=False)
-    username = Column(String, nullable= False)
+    email = Column(String, nullable= False)
+    username = Column(String, nullable= True)
     password = Column(String, nullable= False)
     qualification = Column(String, nullable=True)
-    date_of_birth = Column(DateTime, nullable=True)
+    date_of_birth = Column(Date, nullable=True)
     is_admin = Column(Boolean, default = False)
     score = relationship("Score", back_populates="user", cascade = "all, delete, delete-orphan")
     attempt = relationship("Attempt", back_populates="user", cascade = "all, delete, delete-orphan")
@@ -100,7 +101,7 @@ def db_innit():
     result = session.query(User).filter_by(username = "admin").first()
     if result == None:
         print("Creating default admin, username: admin, password: admin, Please change password after login")
-        default_admin = User(full_name = "admin", username = "admin", password = "admin", is_admin = True)
+        default_admin = User(full_name = "admin",email = 'admin@admin.in', username = "admin", password = "admin", is_admin = True)
         session.add(default_admin)
         session.commit()
     session.close()
@@ -119,7 +120,7 @@ def close_session(session):
 
 if __name__ == "__main__":
     s = get_session()
-    print(s.query(User).filter_by(username = "as9228@gmail.com").all())
+    print(s.query(User).filter_by(email = "as9228@gmail.com").all())
     print("Not to be run directly, call as module")
 else:
     db_innit()
