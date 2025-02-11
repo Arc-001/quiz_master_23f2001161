@@ -45,10 +45,10 @@
     </div>
     <form action = '/register' method = 'post' id = 'reg'>
     <div class="container">
-        <div class="row min-vh-100 d-flex align-items-center border rounded shadow p-4">
+        <div class="row min-vh-100 d-flex align-items-center border rounded shadow p-4 bg-light text-dark border">
 
             <!-- <div class="col-md-6"> -->
-            <div class="col-sm-6">
+            <div class="col-">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" name = "email" class="form-control" id="email" placeholder="john_doe@email.com" required>
             </div>
@@ -58,6 +58,10 @@
                 <input type="text" name = "full_name" class="form-control" id="full_name" placeholder="John Doe" required>
             </div>
             
+            <div class="col-sm-6">
+                <lable for="username" class="form-label">Username</lable>
+                <input type="text" name = "username" class="form-control" id="username" placeholder="70hn_D0e" required>
+            </div>
 
 
             <div class="col-md-12">

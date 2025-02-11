@@ -14,6 +14,33 @@ app.secret_key = 'super secret string'
 # class user(flask_login.UserMixin):
 #     pass
 
+
+def register(form_):
+    '''
+    
+    Takes a form and registers a new user in the database.
+    
+    '''
+    try:
+        session = get_session()
+        new_user = User(
+                    full_name = form_['full_name'],
+                    email = form_['email'], 
+                    username = form_['username'],
+                    qualification = form_['qualification'] + ' | ' + request.form['qualification_info'], 
+                    date_of_birth = datetime.strptime(form_['DOB'], '%m/%d/%Y').date(), 
+                    password = form_['password']
+        )
+        session.add(new_user)
+        session.commit()
+        return True
+    except:
+        return False
+    finally:
+        close_session(session)
+
+
+
 @decorator
 @flask_login.login_required
 def check_admin(f, *args, **kwargs):
@@ -144,32 +171,22 @@ def register_post():
         print('session created')
         in_db = session.query(User).filter_by(email = request.form['email']).first()
         print ('queried' + str(in_db))
+        close_session(session)
         if in_db:
             return 'Email already exists'
         else:
             if (request.form['password'] == request.form['password_check']):
                 print('password matched')
-                new_user = User(
-                    full_name = request.form['full_name'],
-                    email = request.form['email'], 
-                    qualification = request.form['qualification'] + ' | ' + request.form['qualification_info'], 
-                    date_of_birth = datetime.strptime(request.form['DOB'], '%m/%d/%Y').date(), 
-                    password = request.form['password'])
-                print('new user created')
-                session.add(new_user)
-                print('new user added')
-                session.commit()
-                print('new user commited')
-                session.close()
+                if (register(request.form)):
+                    return redirect(url_for('success_reg'))
+                else:
+                    raise e
             else:
                 return 'Password does not match'
             
     except Exception as e:
-        raise e
         return 'internal server error',500
-    finally:
-        close_session(session)
-    return redirect(url_for('success_reg'))
+
     
 @app.get('/success_reg')
 def success_reg():
