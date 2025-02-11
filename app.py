@@ -33,11 +33,11 @@ def register(form_):
         )
         session.add(new_user)
         session.commit()
-        return True
     except:
         return False
     finally:
         close_session(session)
+    return True
 
 
 
@@ -199,6 +199,21 @@ def success_reg():
 def logout():
     flask_login.logout_user()
     return redirect(url_for("login_get"))
+
+@app.post("/admin/edit_users/add_user")
+@flask_login.login_required
+@check_admin
+def add_user():
+    session = get_session()
+    in_db = session.query(User).filter_by(email = request.form['email']).first()
+    if in_db:
+        return '<a href = "/admin/edit_user">Email already exists</a>'
+    close_session(session)
+    print(request.form)
+    if register(request.form):
+        return redirect(url_for("admin_edit_user"))
+    else:
+        return 'Internal server error', 500
 
 
 app.run(debug = True)

@@ -12,7 +12,7 @@
     <script>
         function show_form(){
             document.getElementById("add_usr").innerHTML = `
-            <form action = '/admin/add_user' method = 'post' id = 'reg'>
+            <form action = '/admin/edit_users/add_user' method = 'post' id = 'reg'>
     <div class="container">
         <div class="row align-items-left rounded bg-light text-dark border">
 
@@ -62,14 +62,14 @@
                 <input type="text" class="form-control" id="datepicker" name = "DOB" placeholder="Date of Birth" required>
             </div>
             <div class="col-12 p-4 rounded">
-                <a href = "/admin/edit_users"><button type="submit" class="btn btn-primary">Register</button></a>
+                <button type="submit" class="btn btn-primary">Register</button>
             </div>
         </div>
-      </form>
-            `
+      </form>`
         }
 
     </script>
+    
 
 </head>
 <body>
@@ -121,6 +121,6 @@
           </table>
 
         <button type="button mt-4" class="btn btn-primary" onclick = "show_form()">Add User +</button>
-        <form id = "add_usr"></form>
+        <div id = "add_usr"></div>
 </body>
 </html>
