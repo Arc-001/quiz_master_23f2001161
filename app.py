@@ -25,6 +25,18 @@ def check_admin(f, *args, **kwargs):
         return f(*args, **kwargs)
     else:
         return 'You are not admin'
+    
+@decorator
+@flask_login.login_required
+def redirect_admin(f, *args, ** kwargs):
+    session = get_session()
+    user = session.query(User).filter_by(email = flask_login.current_user.id).first()
+    close_session(session)
+    if user.is_admin == 1:
+        return redirect(url_for("admin_home"))
+    else:
+        return f(*args, **kwargs)
+    
 
 @login_manager.user_loader
 def user_loader(email):
@@ -94,10 +106,31 @@ def login_post():
 
 @app.get('/home')
 @flask_login.login_required
-@check_admin
+@redirect_admin
 def home():
     return render_template('home.html', name = flask_login.current_user.id)
-    # return 'Logged in as: ' + flask_login.current_user.id
+
+
+
+@app.get('/admin/home')
+@flask_login.login_required
+@check_admin
+def admin_home():
+    return render_template('admin.html')
+
+
+
+@app.get('/admin/edit_users')
+@flask_login.login_required
+@check_admin
+def admin_edit_user():
+    session = get_session()
+    Users_ = session.query(User).all()
+    close_session(session)
+    return render_template("edit_users.html", Users = Users_)
+
+
+
 
 @app.get('/register')
 def register_get():
@@ -148,7 +181,7 @@ def success_reg():
 @flask_login.login_required
 def logout():
     flask_login.logout_user()
-    return 'Logged out'
+    return redirect(url_for("login_get"))
 
 
 app.run(debug = True)
