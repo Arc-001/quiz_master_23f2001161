@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date,
 from sqlalchemy.orm import DeclarativeBase, relationship,backref,sessionmaker
 from sqlalchemy.orm import Session
 from datetime import datetime
+import flask_login
 
 engine = create_engine('sqlite:///main.db', echo=True)
 
@@ -56,7 +57,7 @@ class Option(Base):
     is_correct = Column(Boolean, nullable = False, default = False)
     question = relationship("Question", back_populates="option")
 
-class User(Base):
+class User(Base, flask_login.UserMixin):
     __tablename__ = "user"
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     full_name = Column(String, nullable=False)
@@ -65,7 +66,12 @@ class User(Base):
     password = Column(String, nullable= False)
     qualification = Column(String, nullable=True)
     date_of_birth = Column(Date, nullable=True)
-    is_admin = Column(Boolean, default = False)
+    is_admin = Column(Integer, default = '0', nullable=False)
+    # def is_admin(self):
+    #     if self.is_admin == 1:
+    #         return True
+    #     else:
+    #         return False
     score = relationship("Score", back_populates="user", cascade = "all, delete, delete-orphan")
     attempt = relationship("Attempt", back_populates="user", cascade = "all, delete, delete-orphan")
 
@@ -101,7 +107,7 @@ def db_innit():
     result = session.query(User).filter_by(username = "admin").first()
     if result == None:
         print("Creating default admin, username: admin, password: admin, Please change password after login")
-        default_admin = User(full_name = "admin",email = 'admin@admin.in', username = "admin", password = "admin", is_admin = True)
+        default_admin = User(full_name = "admin",email = 'admin@admin.in', username = "admin", password = "admin", is_admin = 1)
         session.add(default_admin)
         session.commit()
     session.close()
@@ -119,8 +125,6 @@ def close_session(session):
 
 
 if __name__ == "__main__":
-    s = get_session()
-    print(s.query(User).filter_by(email = "as9228@gmail.com").all())
     print("Not to be run directly, call as module")
 else:
     db_innit()

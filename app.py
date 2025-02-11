@@ -2,7 +2,7 @@ from models.database_innit import *
 from flask import Flask, render_template, request
 from flask import redirect,request,url_for
 import flask_login
-
+from decorator import decorator
 #global login managerW
 login_manager = flask_login.LoginManager()
 
@@ -11,23 +11,35 @@ app = Flask(__name__)
 
 app.secret_key = 'super secret string'
 
-class user(flask_login.UserMixin):
-    pass
+# class user(flask_login.UserMixin):
+#     pass
+
+@decorator
+@flask_login.login_required
+def check_admin(f, *args, **kwargs):
+    session = get_session()
+    print("We get :",flask_login.current_user.id)
+    user = session.query(User).filter_by(email = flask_login.current_user.id).first()
+    close_session(session)
+    if user.is_admin == 1:
+        return f(*args, **kwargs)
+    else:
+        return 'You are not admin'
 
 @login_manager.user_loader
 def user_loader(email):
 
 
     session = get_session()
-    in_db = session.query(User).filter_by(username = email).first()
+    in_db = session.query(User).filter_by(email = email).first()
     close_session(session)
 
 
     if in_db:
-        user_ = user()
+        user_ = User()
         print (in_db)
-        user.id = email
-        return user
+        user_.id = email
+        return user_
     else:
         return
     
@@ -41,9 +53,9 @@ def request_loader(request):
     close_session(session)
 
     if in_db:
-        user_ = user()
-        user.id = email
-        return user
+        user_ = User()
+        user_.id = email
+        return user_
     else:
         return
     
@@ -73,8 +85,8 @@ def login_post():
 
     if in_db:
         if in_db.password == password:
-            user_ = user()
-            user.id = email
+            user_ = User()
+            user_.id = email
             flask_login.login_user(user_)
             return redirect(url_for('home'))
     return 'Bad login'
@@ -82,6 +94,7 @@ def login_post():
 
 @app.get('/home')
 @flask_login.login_required
+@check_admin
 def home():
     return render_template('home.html', name = flask_login.current_user.id)
     # return 'Logged in as: ' + flask_login.current_user.id
@@ -107,7 +120,7 @@ def register_post():
                     full_name = request.form['full_name'],
                     email = request.form['email'], 
                     qualification = request.form['qualification'] + ' | ' + request.form['qualification_info'], 
-                    date_of_birth = datetime.strptime(request.form['DOB'], '%d/%m/%Y').date(), 
+                    date_of_birth = datetime.strptime(request.form['DOB'], '%m/%d/%Y').date(), 
                     password = request.form['password'])
                 print('new user created')
                 session.add(new_user)
