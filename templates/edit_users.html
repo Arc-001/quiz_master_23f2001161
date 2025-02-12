@@ -12,7 +12,7 @@
     <script>
         function show_form(){
             document.getElementById("add_usr").innerHTML = `
-            <form action = '/admin/edit_users/add_user' method = 'post' id = 'reg'>
+            <form action = '/admin/edit_user/add_user' method = 'post' id = 'reg'>
     <div class="container">
         <div class="row align-items-left rounded bg-light text-dark border">
 
@@ -113,7 +113,7 @@
           <hr>
         </div>
         
-        <form action="/admin/edit_user" method="post" id="edit"></form>
+        <form action="/admin/edit_user/edit" method="post" id="edit"></form>
         <table class="table">
             <thead class="thead-dark">
               <tr>
@@ -138,7 +138,7 @@
                     <td>{{i.password}}</td>
                     <td>{{i.date_of_birth}}</td>
                     <td>{{i.qualification}}</td>
-                    <td><button class = "btn btn-primary" onclick="edit_user('{{i.user_id}}','{{i.full_name}}','{{i.username}}','{{i.email}}')">Edit</button> <strong>|</strong> <button class = "btn btn-danger">Delete</td>
+                    <td><button class = "btn btn-primary" onclick="edit_user('{{i.user_id}}','{{i.full_name}}','{{i.username}}','{{i.email}}')">Edit</button> <strong>|</strong> <a href = "/admin/edit_user/delete/{{i.user_id}}" ><button class = "btn btn-danger">Delete</button></a></td>
                 </tr>
                 {% endfor%}
             </tbody>

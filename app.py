@@ -147,7 +147,7 @@ def admin_home():
 
 
 
-@app.get('/admin/edit_users')
+@app.get('/admin/edit_user')
 @flask_login.login_required
 @check_admin
 def admin_edit_user():
@@ -193,41 +193,58 @@ def success_reg():
     return render_template('success_reg.html')
         
 
-@app.post('/admin/edit_user')
+@app.post('/admin/edit_user/edit')
+@flask_login.login_required
+@check_admin
 def edit_user():
-    # try:
-    session = get_session()
-    print(request.form)
-    user_ = session.query(User).filter_by(user_id = request.form["user_id"]).first()
-    print(user_.user_id)
-    user_.full_name = request.form['full_name']
-    print(1)
-    user_.username = request.form['username']
-    print(2)
-    user_.email = request.form['email']
-    print(3)
-    user_.password = request.form['password']
-    print(4)
-    user_.date_of_birth = datetime.strptime(request.form['DOB'], '%m/%d/%Y').date()
-    print(5)
-    user_.qualification = request.form['qualification_info']
-    print(6)
-    session.commit()
-    print(7)
-    return redirect(url_for('admin_edit_user'))
-    # except:
-    #     return 'Internal server error', 500
-    # finally:
-    #     close_session(session)
+    try:
+        session = get_session()
+        print(request.form)
+        user_ = session.query(User).filter_by(user_id = request.form["user_id"]).first()
+        print(user_.user_id)
+        user_.full_name = request.form['full_name']
+        print(1)
+        user_.username = request.form['username']
+        print(2)
+        user_.email = request.form['email']
+        print(3)
+        user_.password = request.form['password']
+        print(4)
+        user_.date_of_birth = datetime.strptime(request.form['DOB'], '%m/%d/%Y').date()
+        print(5)
+        user_.qualification = request.form['qualification_info']
+        print(6)
+        session.commit()
+        print(7)
+        return redirect(url_for('admin_edit_user'))
+    except:
+        return 'Internal server error', 500
+    finally:
+        close_session(session)
 
+
+@app.get('/admin/edit_user/delete/<int:user_id>')
+@flask_login.login_required
+@check_admin
+def delete_user(user_id):
+    try:    
+        session = get_session()
+        user_ = session.query(User).filter_by(user_id = user_id).first()
+        session.delete(user_)
+        session.commit()
+        return redirect(url_for('admin_edit_user'))
+    except:
+        return 'Internal server error', 500
+    finally:
+        close_session(session)
 
 @app.get('/logout')
 @flask_login.login_required
 def logout():
     flask_login.logout_user()
-    return redirect("/admin/edit_users")
+    return redirect(url_for('login_get'))
 
-@app.post("/admin/edit_users/add_user")
+@app.post("/admin/edit_user/add_user")
 @flask_login.login_required
 @check_admin
 def add_user():
