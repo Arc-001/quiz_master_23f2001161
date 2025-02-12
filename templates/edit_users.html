@@ -68,6 +68,27 @@
       </form>`
         }
 
+// todo somehow escape the ' and other special characters
+
+    function edit_user(user_id, full_name, username, email, password, qualification, dob){
+        console.log(user_id)
+        document.getElementById(user_id).innerHTML = `
+        
+                <td><input type="text" name = "user_id" class="form-control form-control-sm" value =${user_id} placeholder="John Doe" form = "edit"></td>
+                <td><input type="text" name = "full_name" class="form-control form-control-sm"  value =${full_name} placeholder="John Doe" form = "edit"></td>
+                <td><input type="text" name = "username" class="form-control form-control-sm" id="username" value =${username} placeholder="70hn_D0e" form = "edit"></td>
+                <td><input type="email" name = "email" class="form-control" value =${email} placeholder="" form = "edit"></td>
+                <td><input type="password" name = "password" class="form-control" placeholder="password" value ="" form = "edit"></td>
+                <td><input type="text" class="form-control" name = "DOB" value = "" placeholder="MM/DD/YYYY" form = "edit" required></td>
+                <td><input type="text" class="form-control" name = "qualification_info" value ="" placeholder="Btech in Computer Science" form = "edit"></td>
+                <td>
+                    <button type="submit" class="btn btn-primary" form = "edit">Edit</button> |
+                </td>
+        
+            
+            `;
+    }
+
     </script>
     
 
@@ -92,10 +113,11 @@
           <hr>
         </div>
         
-
+        <form action="/admin/edit_user" method="post" id="edit"></form>
         <table class="table">
             <thead class="thead-dark">
               <tr>
+                
                 <th scope="col">User Id</th>
                 <th scope="col">Full Name</th>
                 <th scope="col">User Name</th>
@@ -103,11 +125,12 @@
                 <th scope="col">Password</th>
                 <th scope="col">Date Of Birth</th>
                 <th scope="col">Qualification</th>
+                <th scope="col">Action</th>
             </tr>
             </thead>
             <tbody>
                 {% for i in Users%}
-                <tr>
+                <tr id={{i.user_id}}>
                     <th scope="row">{{i.user_id}}</th>
                     <td>{{i.full_name}}</td>
                     <td>{{i.username}}</td>
@@ -115,10 +138,13 @@
                     <td>{{i.password}}</td>
                     <td>{{i.date_of_birth}}</td>
                     <td>{{i.qualification}}</td>
+                    <td><button class = "btn btn-primary" onclick="edit_user('{{i.user_id}}','{{i.full_name}}','{{i.username}}','{{i.email}}')">Edit</button> <strong>|</strong> <button class = "btn btn-danger">Delete</td>
                 </tr>
                 {% endfor%}
             </tbody>
           </table>
+        </form>
+
 
         <button type="button mt-4" class="btn btn-primary" onclick = "show_form()">Add User +</button>
         <div id = "add_usr"></div>
