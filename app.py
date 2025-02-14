@@ -259,6 +259,36 @@ def add_user():
     else:
         return 'Internal server error', 500
 
+@app.get("/admin/subjects")
+@flask_login.login_required
+@check_admin
+def admin_subjects():
+    # try:
+    session = get_session()
+    subjects = session.query(Subject).all()
+    return render_template("edit_subjects.html", subjects = subjects)
+    # except:
+    #     return 'Internal server error', 500
+    # finally:
+    #     close_session(session)
+
+@app.get("/admin/subject/delete/<int:subject_id>")
+@flask_login.login_required
+@check_admin
+def del_subject(subject_id):
+    session = get_session()
+    print(1)
+    subject = session.query(Subject).filter_by(subject_id = subject_id).first()
+    print(subject.subject_id)
+    print(2)
+    session.delete(subject)
+    print(3)
+    session.commit()
+    session.close()
+    print(4)
+    return redirect(url_for("admin_subjects"))
+
+
 
 app.run(debug = True)
 
