@@ -267,6 +267,20 @@ def del_subject(subject_id):
     print(4)
     return redirect(url_for("admin_subjects"))
 
+@app.post("/admin/subject/edit")
+@flask_login.login_required
+@check_admin
+def edit_subject():
+    print(request.form)
+    session = get_session()
+    subject = session.query(Subject).filter_by(subject_id = request.form['subject_id']).first()
+    if subject:
+        subject.name = request.form['subject_name']
+        subject.description = request.form['subject_description']
+    session.commit()
+    close_session(session)
+    return redirect(url_for("admin_subjects"))
+
 
 #register
 @app.get('/register')
