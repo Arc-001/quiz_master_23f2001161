@@ -281,6 +281,19 @@ def edit_subject():
     close_session(session)
     return redirect(url_for("admin_subjects"))
 
+@app.post("/admin/subject/add")
+@flask_login.login_required
+@check_admin
+def add_subject():
+    print(request.form)
+    session = get_session()
+    subject = Subject()
+    subject.name = request.form["subject_name"]
+    subject.description = request.form["subject_description"]
+    session.add(subject)
+    session.commit()
+    return redirect(url_for("admin_subjects"))
+
 
 #register
 @app.get('/register')

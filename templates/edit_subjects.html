@@ -37,10 +37,18 @@
             </div>
             `;
         }
+        function make_visible(){
+            console.log(document.getElementById("new_subject").style.visibility)
+            
+            if (document.getElementById("new_subject").style.visibility === "hidden"){
+            document.getElementById("new_subject").style.visibility = "visible"
+            console.log("did exec")
+            }
+        }
     </script>
 
 </head>
-<body>
+<body >
 
     <div class = "header" id = "header-home">
     <div class="container-fluid">
@@ -61,8 +69,8 @@
       <hr>
     </div>
 
-    <form action = "/admin/subject/edit" method = "post" id = "edit_subjects">
     <div class="container py-4">
+        <form action = "/admin/subject/edit" method = "post" id = "edit_subjects">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for subject in subjects %}
             <div class="col" id = "{{subject.subject_id}}">
@@ -84,7 +92,29 @@
             </div>
             {% endfor %}
         </div>
+        </form>
     </div>
-    </form>
+    <div class="d-grid col-6 mx-auto">
+        <button class="btn btn-outline-primary" type="button" onclick="make_visible()">Add Subject</button>
+      </div>
+    <div id = "new_subject" style="visibility: hidden;">
+        <form action = "/admin/subject/add" method="post" id = "new_subject_form">
+            <div class = "container-fluid px-3 py-4">
+                <div class = "row- mx-auto">
+                    <div class = "col- mx-auto">
+                        <label class="form-label" for = "name">Name of subject</label>
+                        <input class = "form-control" id = "name" name = "subject_name" placeholder="name of the subject" form="new_subject_form"/>
+                        <label class="form-label pt-4" for = "description">Description Of the subject</label>
+                        <input class = "form-control" id = "description" name = "subject_description" placeholder="Description of the subject" form = "new_subject_form"/>
+                    </div>
+                </div>
+            <div class = "row py-4 mx-auto">
+                <div class = "col-6 align-items-center g-2">
+                <a href = "/admin/subjects"><button class="btn btn-primary">Cancel</button></a>
+                <button class="btn btn-primary" type = "submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
