@@ -295,6 +295,62 @@ def add_subject():
     return redirect(url_for("admin_subjects"))
 
 
+
+#admin chapters
+
+
+@app.get("/admin/<int:subject_id>")
+@flask_login.login_required
+@check_admin
+def admin_chapter(subject_id):
+    session = get_session()
+    chapters = session.query(Chapter).filter_by(Subject_id = str(subject_id)).all()
+    subject = session.query(Subject).filter_by(subject_id = str(subject_id)).first()
+    subject_name = subject.name
+    close_session(session)
+    print(subject_id)
+    return render_template("edit_chapters.html",chapters = chapters, subject_id = subject_id, subject_name = subject_name)
+
+@app.post("/admin/<int:subject_id>/add")
+@flask_login.login_required
+@check_admin
+def add_chapter(subject_id):
+    print(f"--------------------{subject_id}---------------")
+    session = get_session()
+    chapter = Chapter()
+    chapter.Subject_id=subject_id
+    chapter.name = request.form["chapter_name"]
+    chapter.description = request.form["chapter_description"]
+    session.add(chapter)
+    session.commit()
+    return redirect(f'/admin/{subject_id}')
+
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/delete")
+@flask_login.login_required
+@check_admin
+def delete_chapter(subject_id,chapter_id):
+    session = get_session()
+    chapter = session.query(Chapter).filter_by(chapter_id=chapter_id).first()
+    session.delete(chapter)
+    session.commit()
+    close_session(session)
+    return redirect(f"/admin/{subject_id}")
+
+@app.post("/admin/chapter/edit")
+@flask_login.login_required
+@check_admin
+def edit_chapter():
+    session = get_session()
+    chapter = session.query(Chapter).filter_by(chapter_id = request.form["chapter_id"]).first()
+    subject_id = chapter.Subject_id
+    chapter.name = request.form["chapter_name"]
+    chapter.description=request.form["chapter_description"]
+    session.commit()
+    close_session(session)
+    return redirect(f"/admin/{subject_id}")
+
+
+
 #register
 @app.get('/register')
 def register_get():

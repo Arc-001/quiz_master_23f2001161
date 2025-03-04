@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>home</title>
+    <title>Edit Chapter</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
     <script>
-        function edit_subject(subject_id, subject_name, subject_description){
-            console.log(subject_id);
-            console.log(subject_name);
-            console.log(subject_description);
-            document.getElementById(subject_id).innerHTML = `
-            <div class="col" id = "${subject_id}">
-                <input value = "${subject_id}" name = "subject_id" style = "visibility:hidden" form = "edit_subjects"/>
+        function edit_chapter(chapter_id, chapter_name, chapter_description, subject_id){
+            console.log(chapter_id);
+            console.log(chapter_name);
+            console.log(chapter_description);
+            document.getElementById(chapter_id).innerHTML = `
+            <div class="col" id = "${chapter_id}">
+                <input value = "${chapter_id}" name = "chapter_id" style = "visibility:hidden" form = "edit_chapters"/>
                 <div class="card h-100">
                     <div class="card-header bg-light">
-                        ${subject_id} ) <input type = "text" class = "form-control" name = "subject_name" value="${subject_name}" style = "display:inline; width: auto;" form="edit_subjects"/>
+                        ${chapter_id} ) <input type = "text" class = "form-control" name = "chapter_name" value="${chapter_name}" style = "display:inline; width: auto;" form="edit_chapters"/>
                     </div>
                     <div class="card-body">
                         <p class="card-text">
-                            <textarea type = "text" class = "form-control" name = "subject_description" form = "edit_subjects">${subject_description}</textarea>
+                            <textarea type = "text" class = "form-control" name = "chapter_description" form = "edit_chapters">${chapter_description}</textarea>
                         </p>
                     </div>
                     <div class="card-footer ">
                         <div class = "d-flex justify-content-between align-items-center">
-                            <a href = "/admin/subjects"><button type = "button" class = "btn btn-outline-danger">Cancel</button></a>
-                            <a href = "/admin/subject/delete/${subject_id}"><button type = "button" class = "btn btn-danger">Delete</button></a>
+                            <a href = "/admin/${subject_id}"><button type = "button" class = "btn btn-outline-danger">Cancel</button></a>
+                            <a href = "/admin/${subject_id}/${chapter_id}/delete"><button type = "button" class = "btn btn-danger">Delete</button></a>
                             <button type = "submit" class = "btn btn-primary">Confirm</button>
                         </div>
                     </div> 
@@ -38,10 +38,10 @@
             `;
         }
         function make_visible(){
-            console.log(document.getElementById("new_subject").style.visibility)
+            console.log(document.getElementById("new_chapter").style.visibility)
             
-            if (document.getElementById("new_subject").style.visibility === "hidden"){
-            document.getElementById("new_subject").style.visibility = "visible"
+            if (document.getElementById("new_chapter").style.visibility === "hidden"){
+            document.getElementById("new_chapter").style.visibility = "visible"
             console.log("did exec")
             }
         }
@@ -54,12 +54,12 @@
     <div class="container-fluid">
         <div class="row g-0">
           <div class="col-md-4 p-3">
-            <a href = '/admin/home'>
+            <a href = '/admin/subjects'>
                 <button type="button" class="btn btn-outline-danger">Go back</button>
             </a>
           </div>
           <div class="col-md-4 p-3 text-center">
-            <h2>Edit Subjects</h2>
+            <h2>Edit chapters in {{subject_name}}</h2>
             </div>
           <div class="col-md-4 p-3 text-end">
             <a href="/logout"><button type="button" class="btn btn-danger">Logout</button></a>
@@ -70,22 +70,22 @@
     </div>
 
     <div class="container py-4">
-        <form action = "/admin/subject/edit" method = "post" id = "edit_subjects">
+        <form action = "/admin/chapter/edit" method = "post" id = "edit_chapters">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {% for subject in subjects %}
-            <div class="col" id = "{{subject.subject_id}}">
+            {% for chapter in chapters %}
+            <div class="col" id = "{{chapter.chapter_id}}">
                 <div class="card h-100">
                     <div class="card-header bg-light">
-                        {{subject.subject_id}} ) {{subject.name}}
+                        {{chapter.chapter_id}} ) {{chapter.name}}
                     </div>
                     <div class="card-body">
-                        <p class="card-text">{{subject.description}}</p>
+                        <p class="card-text">{{chapter.description}}</p>
                     </div>
                     <div class="card-footer ">
                         <div class = "d-flex justify-content-between align-items-center">
-                            <a href = "/admin/subject/delete/{{subject.subject_id}}"><button type = "button" class = "btn btn-danger">Delete</button></a>
-                            <button type = "button" class = "btn btn-primary" onclick="edit_subject('{{subject.subject_id}}', '{{subject.name}}','{{subject.description}}')">Edit</button>
-                            <a href = "/admin/{{subject.subject_id}}"><button type = "button" class = "btn btn-success">Go in</button></a>
+                            <a href = "/admin/{{chapter.Subject_id}}/{{chapter.chapter_id}}/delete"><button type = "button" class = "btn btn-danger">Delete</button></a>
+                            <button type = "button" class = "btn btn-primary" onclick="edit_chapter('{{chapter.chapter_id}}', '{{chapter.name}}','{{chapter.description}}','{{chapter.Subject_id}}')">Edit</button>
+                            <a href = "/admin/<{{chapters.chapter_id}}>"><button type = "button" class = "btn btn-success">Go in</button></a>
                         </div>
                     </div> 
                 </div>
@@ -95,23 +95,23 @@
         </form>
     </div>
     <div class="d-grid col-6 mx-auto">
-        <button class="btn btn-outline-primary" type="button" onclick="make_visible()">Add Subject</button>
+        <button class="btn btn-outline-primary" type="button" onclick="make_visible()">Add chapter</button>
       </div>
-    <div id = "new_subject" style="visibility: hidden;">
-        <form action = "/admin/subject/add" method="post" id = "new_subject_form">
+    <div id = "new_chapter" style="visibility: hidden;">
+        <form action = "/admin/{{subject_id}}/add" method="post" id = "new_chapter_form">
             <div class = "container-fluid px-3 py-4">
                 <div class = "row- mx-auto">
                     <div class = "col- mx-auto">
-                        <label class="form-label" for = "name">Name of subject</label>
-                        <input class = "form-control" id = "name" name = "subject_name" placeholder="name of the subject" form="new_subject_form"/>
-                        <label class="form-label pt-4" for = "description">Description Of the subject</label>
-                        <input class = "form-control" id = "description" name = "subject_description" placeholder="Description of the subject" form = "new_subject_form"/>
+                        <label class="form-label" for = "name">Name of chapter</label>
+                        <input class = "form-control" id = "name" name = "chapter_name" placeholder="name of the chapter" form="new_chapter_form"/>
+                        <label class="form-label pt-4" for = "description">Description Of the chapter</label>
+                        <input class = "form-control" id = "description" name = "chapter_description" placeholder="Description of the chapter" form = "new_chapter_form"/>
                     </div>
                 </div>
             <div class = "row py-4 mx-auto">
                 <div class = "col-6 align-items-center g-2">
-                <a href = "/admin/subjects"><button class="btn btn-primary" type = "button">Cancel</button></a>
-                <button class="btn btn-primary" type = "submit">Submit</button>
+                <a href = "/admin/{{subject_id}}"><button class="btn btn-primary" type = "button">Cancel</button></a>
+                <button class="btn btn-primary" type = "submit" form = "new_chapter_form">Submit</button>
                 </div>
             </div>
         </form>
