@@ -190,7 +190,7 @@ def edit_user():
         print(3)
         user_.password = request.form['password']
         print(4)
-        user_.date_of_birth = datetime.strptime(request.form['DOB'], '%m/%d/%Y').date()
+        user_.date_of_birth = datetime.strptime(str(request.form['DOB']), '%Y-%m-%d').date()
         print(5)
         user_.qualification = request.form['qualification_info']
         print(6)
