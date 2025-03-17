@@ -325,7 +325,7 @@ def add_chapter(subject_id):
     session.commit()
     return redirect(f'/admin/{subject_id}')
 
-@app.get("/admin/<int:subject_id>/<int:chapter_id>")
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/delete")
 @flask_login.login_required
 @check_admin
 def delete_chapter(subject_id,chapter_id):
@@ -349,7 +349,16 @@ def edit_chapter():
     close_session(session)
     return redirect(f"/admin/{subject_id}")
 
+#admin Quiz edit
 
+@app.get("/admin/<int:subject_id>/<int:chapter_id>")
+@flask_login.login_required
+@check_admin
+def admin_quiz(subject_id,chapter_id):
+    session = get_session()
+    quizzes = session.query(Quiz).filter_by(chapter_id = chapter_id).all()
+    close_session(session)
+    return render_template('edit_quizzes.html', quizzes = quizzes, subject_id = subject_id )
 
 #register
 @app.get('/register')
