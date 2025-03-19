@@ -449,7 +449,32 @@ def admin_questions(subject_id, chapter_id, quiz_id):
     close_session(session)
     return render_template("admin_add_edit_quiz.html", questions = questions, options = options, question_options = question_options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
 
+@app.post("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/add")
+@flask_login.login_required
+@check_admin
+def add_question_redirect(subject_id, chapter_id, quiz_id):
+    session = get_session()
+    question = Question()
+    question.question_stmt = request.form["question_stmt"]
+    question.quiz_id = quiz_id
+    session.add(question)
+    session.commit()
+    question_id = question.question_id
+    close_session(session)
+    return redirect(f'/admin/{subject_id}/{chapter_id}/{quiz_id}/{question_id}/edit?options={request.form["no_of_options"]}')
 
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/<int:question_id>/edit")
+@flask_login.login_required
+@check_admin
+def edit_question(subject_id, chapter_id, quiz_id, question_id):
+    session = get_session()
+    question = session.query(Question).filter_by(question_id = question_id).first()
+    options = question.option
+    close_session(session)
+    return render_template("admin_edit_question.html",question = question, options = options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
+
+
+    
 
 
 #register
