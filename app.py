@@ -349,7 +349,12 @@ def edit_chapter():
     close_session(session)
     return redirect(f"/admin/{subject_id}")
 
+
+
+
 #admin Quiz edit
+
+
 
 @app.get("/admin/<int:subject_id>/<int:chapter_id>")
 @flask_login.login_required
@@ -404,6 +409,8 @@ def admin_delete_quiz(subject_id, chapter_id, quiz_id):
     finally:
         close_session(session)
 
+
+
 @app.post("/admin/<int:subject_id>/<int:chapter_id>/edit")
 @flask_login.login_required
 @check_admin
@@ -423,7 +430,32 @@ def admin_edit_quiz(subject_id, chapter_id):
     finally:
         close_session(session)
 
+
+#---------------------Admin Questions / Quiz--------------------
+
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/questions")
+@flask_login.login_required
+@check_admin
+def admin_questions(subject_id, chapter_id, quiz_id):
+    session = get_session()
+    questions = session.query(Question).filter_by(quiz_id = quiz_id).all()
+    options = session.query(Option).filter_by(quiz_id = quiz_id).all()
+    question_options = {}
+    for question in questions:
+        question_options[question] = []
+        for option in options:
+            if option.question_id == question.question_id:
+                question_options[question].append(option)
+    close_session(session)
+    return render_template("admin_add_edit_quiz.html", questions = questions, options = options, question_options = question_options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
+
+
+
+
 #register
+
+
+
 @app.get('/register')
 def register_get():
     return render_template('register.html')
