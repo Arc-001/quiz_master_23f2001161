@@ -358,7 +358,70 @@ def admin_quiz(subject_id,chapter_id):
     session = get_session()
     quizzes = session.query(Quiz).filter_by(chapter_id = chapter_id).all()
     close_session(session)
-    return render_template('edit_quizzes.html', quizzes = quizzes, subject_id = subject_id )
+    return render_template('edit_quizzes.html', quizzes = quizzes, subject_id = subject_id , chapter_id = chapter_id )
+
+
+@app.post("/admin/<int:subject_id>/<int:chapter_id>/quiz/add")
+@flask_login.login_required
+@check_admin
+def admin_add_quiz(subject_id, chapter_id):
+    try:
+        session = get_session()
+        quiz = Quiz()
+        quiz.chapter_id = chapter_id
+        quiz.name = request.form["quiz_name"]
+        print(1)
+        quiz.description = request.form["quiz_description"]
+        print(2)
+        print(request.form["date_of_quiz"])
+        quiz.date_of_quiz = datetime.strptime(request.form["date_of_quiz"],'%Y-%m-%d').date()
+        print(3)
+        quiz.remarks = request.form["remarks"]
+        print(4)
+        quiz.time_duration = request.form["time_duration"]
+        print(5)
+        session.add(quiz)
+        session.commit()
+        return redirect(f'/admin/{subject_id}/{chapter_id}')
+    except:
+        return 'Internal server error', 500
+    finally:
+        close_session(session)
+
+
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/delete")
+@flask_login.login_required
+@check_admin
+def admin_delete_quiz(subject_id, chapter_id, quiz_id):
+    try:
+        session = get_session()
+        quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
+        session.delete(quiz)
+        session.commit()
+        return redirect(f'/admin/{subject_id}/{chapter_id}')
+    except:
+        return 'Internal server error', 500
+    finally:
+        close_session(session)
+
+@app.post("/admin/<int:subject_id>/<int:chapter_id>/edit")
+@flask_login.login_required
+@check_admin
+def admin_edit_quiz(subject_id, chapter_id):
+    try:
+        session = get_session()
+        quiz = session.query(Quiz).filter_by(quiz_id = request.form["quiz_id"]).first()
+        quiz.name = request.form["quiz_name"]
+        quiz.description = request.form["quiz_description"]
+        quiz.date_of_quiz = datetime.strptime(request.form["date_of_quiz"],'%Y-%m-%d').date()
+        quiz.remarks = request.form["remarks"]
+        quiz.time_duration = request.form["time_duration"]
+        session.commit()
+        return redirect(f'/admin/{subject_id}/{chapter_id}')
+    except:
+        return 'Internal server error', 500
+    finally:
+        close_session(session)
 
 #register
 @app.get('/register')

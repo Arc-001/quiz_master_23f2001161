@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
     <script>
-        function edit_quiz(quiz_id, quiz_name, quiz_description, chapter_id, date_of_quiz, time_duration, remarks){
+        function edit_quiz(quiz_id, quiz_name, quiz_description, chapter_id, date_of_quiz, time_duration, remarks, subject_id){
             console.log(quiz_id);
             console.log(quiz_name);
             console.log(quiz_description);
@@ -40,8 +40,8 @@
                     </div>
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="/admin/chapter/${chapter_id}"><button type="button" class="btn btn-outline-danger">Cancel</button></a>
-                            <a href="/admin/quiz/${quiz_id}/delete"><button type="button" class="btn btn-danger">Delete</button></a>
+                            <a href="/admin/${subject_id}/${chapter_id}"><button type="button" class="btn btn-outline-danger">Cancel</button></a>
+                            <a href="/admin/${subject_id}/${chapter_id}/${quiz_id}/delete"><button type="button" class="btn btn-danger">Delete</button></a>
                             <button type="submit" class="btn btn-primary">Confirm</button>
                         </div>
                     </div> 
@@ -82,7 +82,7 @@
     </div>
 
     <div class="container py-4">
-        <form action="/admin/quiz/edit" method="post" id="edit_quizzes">
+        <form action="/admin/{{subject_id}}/{{chapter_id}}/edit" method="post" id="edit_quizzes">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for quiz in quizzes %}
             <div class="col" id="{{quiz.quiz_id}}">
@@ -98,8 +98,8 @@
                     </div>
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="/admin/quiz/{{quiz.quiz_id}}/delete"><button type="button" class="btn btn-danger">Delete</button></a>
-                            <button type="button" class="btn btn-primary" onclick="edit_quiz('{{quiz.quiz_id}}', '{{quiz.name}}','{{quiz.description}}','{{quiz.chapter_id}}', '{{quiz.date_of_quiz}}', '{{quiz.time_duration}}', '{{quiz.remarks}}')">Edit</button>
+                            <a href="/admin/{{subject_id}}/{{chapter_id}}/{{quiz.quiz_id}}/delete"><button type="button" class="btn btn-danger">Delete</button></a>
+                            <button type="button" class="btn btn-primary" onclick="edit_quiz('{{quiz.quiz_id}}', '{{quiz.name}}','{{quiz.description}}','{{quiz.chapter_id}}', '{{quiz.date_of_quiz}}', '{{quiz.time_duration}}', '{{quiz.remarks}}', '{{subject_id}}')">Edit</button>
                             <a href="/admin/quiz/{{quiz.quiz_id}}/questions"><button type="button" class="btn btn-success">Questions</button></a>
                         </div>
                     </div> 
@@ -113,16 +113,16 @@
         <button class="btn btn-outline-primary" type="button" onclick="make_visible()">Add quiz</button>
     </div>
     <div id="new_quiz" style="visibility: hidden;">
-        <form action="/admin/chapter/{{chapter_id}}/quiz/add" method="post" id="new_quiz_form">
+        <form action="/admin/{{subject_id}}/{{chapter_id}}/quiz/add" method="post" id="new_quiz_form">
             <div class="container-fluid px-3 py-4">
                 <div class="row- mx-auto">
                     <div class="col- mx-auto">
                         <label class="form-label" for="name">Name of quiz</label>
-                        <input class="form-control" id="name" name="quiz_name" placeholder="Name of the quiz" form="new_quiz_form"/>
+                        <input class="form-control" id="name" name="quiz_name" placeholder="Name of the quiz" form="new_quiz_form" required/>
                         <label class="form-label pt-4" for="description">Description of the quiz</label>
-                        <input class="form-control" id="description" name="quiz_description" placeholder="Description of the quiz" form="new_quiz_form"/>
+                        <input class="form-control" id="description" name="quiz_description" placeholder="Description of the quiz" form="new_quiz_form" required/>
                         <label class="form-label pt-4" for="date">Date of Quiz</label>
-                        <input class="form-control" id="date" name="date_of_quiz" type="date" form="new_quiz_form"/>
+                        <input class="form-control" id="date" name="date_of_quiz" type="date" form="new_quiz_form" required/>
                         <label class="form-label pt-4" for="duration">Time Duration</label>
                         <input class="form-control" id="duration" name="time_duration" placeholder="in minutes eg. (30) " form="new_quiz_form"/>
                         <label class="form-label pt-4" for="remarks">Remarks</label>

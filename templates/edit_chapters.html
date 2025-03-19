@@ -70,7 +70,7 @@
     </div>
 
     <div class="container py-4">
-        <form action = "/admin/chapter/edit" method = "post" id = "edit_chapters">
+        <form action = "/admin/{{chapter_id}}/{{subject_id}}/edit" method = "POST" id = "edit_chapters">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for chapter in chapters %}
             <div class="col" id = "{{chapter.chapter_id}}">
