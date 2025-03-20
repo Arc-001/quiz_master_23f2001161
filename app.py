@@ -140,11 +140,44 @@ def login_post():
             return redirect(url_for('home'))
     return 'Bad login'
 
+
+
+
+##########################################################
+#                                                        #
+# ------------------------USER SIDE----------------------#
+#                                                        #
+##########################################################
+
+
+
 @app.get('/home')
 @flask_login.login_required
 @redirect_admin
 def home():
-    return render_template('home.html', name = flask_login.current_user.id)
+    session = get_session()
+    subjects = session.query(Subject).all()
+    close_session(session)
+    return render_template('home.html', name = flask_login.current_user.id, subjects = subjects)
+
+
+@app.get('/user/<int:subject_id>')
+@flask_login.login_required
+@redirect_admin
+def user_chapters(subject_id):
+    session = get_session()
+    chapters = session.query(Chapter).filter_by(Subject_id = subject_id).all()
+    close_session(session)
+    return render_template('user_chapters.html', name = flask_login.current_user.id, chapters = chapters, subject_id = subject_id)
+
+@app.get('/user/<int:subject_id>/<int:chapter_id>')
+@flask_login.login_required
+@redirect_admin
+def user_quiz(subject_id, chapter_id):
+    session = get_session()
+    quizzes = session.query(Quiz).filter_by(chapter_id = chapter_id).all()
+    close_session(session)
+    return render_template('user_quizes.html', name = flask_login.current_user.id, quizzes = quizzes, subject_id = subject_id, chapter_id = chapter_id)
 
 
 #----------------------Admin--------------
@@ -544,7 +577,7 @@ def register_post():
             if (request.form['password'] == request.form['password_check']):
                 print('password matched')
                 if (register(request.form)):
-                    return redirect(url_for('success_reg'))
+                    return redirect(url_for('login_get'))
                 else:
                     raise e
             else:
@@ -554,9 +587,6 @@ def register_post():
         return 'internal server error',500
 
     
-@app.get('/success_reg')
-def success_reg():
-    return render_template('success_reg.html')
         
 
 @app.get('/logout')

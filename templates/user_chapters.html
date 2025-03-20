@@ -15,8 +15,8 @@
     <div class="container-fluid">
         <div class="row g-0">
           <div class="col-md-4 p-3">
-            <a href = '/{{uid}}/result'>
-                <button type="button" class="btn btn-outline-info">Result</button>
+            <a href = '/home'>
+                <button type="button" class="btn btn-outline-danger">Go back</button>
             </a>
           </div>
           <div class="col-md-4 p-3 text-center">
@@ -32,19 +32,18 @@
 
     <div class="container py-4">
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-          {% for subject in subjects %}
-          <a href="/user/{{subject.subject_id}}" style="text-decoration:none;">
-          <div class="col" id = "{{subject.subject_id}}">
+          {% for chapter in chapters %}
+          <a href="/user/{{subject_id}}/{{chapter.chapter_id}}" style="text-decoration:none;">
+          <div class="col" id = "{{chapter.chapter_id}}">
               <div class="card h-100">
                   <div class="card-header bg-success-subtle">
-                      {{subject.subject_id}} ) {{subject.name}}
+                      {{chapter.chapter_id}} ) {{chapter.name}}
                   </div>
-                  <div class="card-body card-body py-5 bg-info-subtle">
-                      <p class="card-text">{{subject.description}}</p>
+                  <div class="card-body py-5 bg-info-subtle">
+                      <p class="card-text">{{chapter.description}}</p>
                   </div>
                   <div class="card-footer bg-danger-subtle">
                       <div class = "d-flex justify-content-center">
-                          <!-- <a href = "/admin/{{subject.subject_id}}"><button type = "button" class = "btn btn-success">Go in</button></a> -->
                            <div class = "card-text"> TODO: ADD a reference to upcomming quiz if time permits </div>
                       </div>
                   </div> 
