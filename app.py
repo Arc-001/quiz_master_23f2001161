@@ -494,8 +494,31 @@ def edit_question(subject_id, chapter_id, quiz_id, question_id):
         no_of_options = -1
     return render_template("admin_edit_question.html",question = question, options = options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id, no_of_options = no_of_options)
 
+@app.post("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/<int:question_id>/edit")
+@flask_login.login_required
+@check_admin
+def edit_question_post(subject_id, chapter_id, quiz_id, question_id):
+    session = get_session()
+    question = session.query(Question).filter_by(question_id = question_id).first()
+    options = question.option
+    question.question_stmt = request.form["question_stmt"]
+    for option in options:
+        option.option_text = request.form[f"{option.option_id}"]
+    session.commit()
+    close_session(session)
+    return redirect(f'/admin/{subject_id}/{chapter_id}/{quiz_id}/questions')
 
-    
+
+@app.get("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/<int:question_id>/delete")
+@flask_login.login_required
+@check_admin
+def delete_question(subject_id, chapter_id, quiz_id, question_id):
+    session = get_session()
+    question = session.query(Question).filter_by(question_id = question_id).first()
+    session.delete(question) #can be done as on cascade is declared in model so options are deleted automatically
+    session.commit()
+    close_session(session)
+    return redirect(f'/admin/{subject_id}/{chapter_id}/{quiz_id}/questions')
 
 
 #register

@@ -26,9 +26,9 @@
   </div>
   <div class="card text-center m-4 border-1 shadow">
     <div class="card-header">
-    {{question.question_stmt}}
+      <form action="/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question.question_id}}/edit" method = "POST" id = "edit_question_form">
+      <input class = "form-control" value = {{question.question_stmt}} type = text name = "question_stmt"/>
     </div>
-    <form action="/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question_id}}/edit" method = "POST" id = "edit_question_form">
     <div class="card-body">
         <div class="container-fluid">
             <div class="row justify-content-center">
@@ -61,10 +61,10 @@
     <div class = "container">
         <div class = "row justify-content-center">
             <div class = "col-md-6 mb-2">
-                <a href = "/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question.question_id}}/delete"><button class = "btn btn-danger">Delete</button></a>
+                <a href = "/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question.question_id}}/questions"><button class = "btn btn-danger">Cancel</button></a>
             </div>
             <div class = "col-md-6 mb-2">
-                <a href = "/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question.question_id}}/edit"><button class = "btn btn-primary">Edit</button></a>
+                <a href = "/admin/{{subject_id}}/{{chapter_id}}/{{quiz_id}}/{{question.question_id}}/edit"><button class = "btn btn-primary">Submit</button></a>
             </div>
         </div>
     </div>
