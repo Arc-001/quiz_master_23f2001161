@@ -453,15 +453,32 @@ def admin_questions(subject_id, chapter_id, quiz_id):
 @flask_login.login_required
 @check_admin
 def add_question_redirect(subject_id, chapter_id, quiz_id):
+    no_of_options = request.form["no_of_options"]
     session = get_session()
     question = Question()
     question.question_stmt = request.form["question_stmt"]
     question.quiz_id = quiz_id
     session.add(question)
     session.commit()
+    for i in range(int(no_of_options)-1):
+        opt = Option()
+        opt.option_text = "placeholder-wrong"
+        opt.is_correct = 0
+        opt.question_id = question.question_id
+        opt.quiz_id = quiz_id
+        session.add(opt)
+    opt = Option()
+    opt.option_text = "placeholder-correct"
+    opt.is_correct = 1
+    opt.quiz_id = quiz_id
+    opt.question_id = question.question_id
+    session.add(opt)
+    session.commit()
+    
     question_id = question.question_id
     close_session(session)
-    return redirect(f'/admin/{subject_id}/{chapter_id}/{quiz_id}/{question_id}/edit?options={request.form["no_of_options"]}')
+
+    return redirect(f'/admin/{subject_id}/{chapter_id}/{quiz_id}/{question_id}/edit')
 
 @app.get("/admin/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/<int:question_id>/edit")
 @flask_login.login_required
@@ -471,7 +488,11 @@ def edit_question(subject_id, chapter_id, quiz_id, question_id):
     question = session.query(Question).filter_by(question_id = question_id).first()
     options = question.option
     close_session(session)
-    return render_template("admin_edit_question.html",question = question, options = options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
+    try:
+        no_of_options = request.args.get('options')
+    except:
+        no_of_options = -1
+    return render_template("admin_edit_question.html",question = question, options = options, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id, no_of_options = no_of_options)
 
 
     
