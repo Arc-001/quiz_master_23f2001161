@@ -179,6 +179,15 @@ def user_quiz(subject_id, chapter_id):
     close_session(session)
     return render_template('user_quizes.html', name = flask_login.current_user.id, quizzes = quizzes, subject_id = subject_id, chapter_id = chapter_id)
 
+@app.get('/user/<int:subject_id>/<int:chapter_id>/<int:quiz_id>')
+@flask_login.login_required
+@redirect_admin
+def quiz_test(subject_id, chapter_id, quiz_id):
+    session = get_session()
+    quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
+    close_session
+    return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
+
 
 #----------------------Admin--------------
 
