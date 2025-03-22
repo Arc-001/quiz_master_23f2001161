@@ -37,7 +37,7 @@ class Quiz(Base):
     date_of_quiz = Column(Date, default = datetime.utcnow)
     time_duration = Column(String, default = "NA")
     remarks = Column(String, default = "NA")
-    score = relationship("Score", back_populates="quiz", cascade="all, delete, delete-orphan")
+    attempt = relationship("Attempt", back_populates="quiz", cascade = "all, delete, delete-orphan")
     chapter = relationship("Chapter", back_populates="quizes")
     question = relationship("Question", back_populates="quiz", cascade = "all, delete, delete-orphan")
     option = relationship("Option", back_populates="quiz", cascade = "all, delete, delete-orphan")
@@ -75,31 +75,21 @@ class User(Base, flask_login.UserMixin):
     #         return True
     #     else:
     #         return False
-    score = relationship("Score", back_populates="user", cascade = "all, delete, delete-orphan")
     attempt = relationship("Attempt", back_populates="user", cascade = "all, delete, delete-orphan")
 
-class Score(Base):
-    __tablename__ = "score"
-    score_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.user_id"),nullable=False)
-    quiz_id = Column(Integer, ForeignKey("quiz.quiz_id"), nullable=False)
-    attempt_id= Column(Integer, ForeignKey("attempt.attempt_id"), nullable=False)
-    attempt_date_time = Column(DateTime)
-    total_score = Column(Integer) 
-    user = relationship("User", back_populates="score")
-    quiz = relationship("Quiz", back_populates="score")
-    attempt = relationship("Attempt", back_populates="score")
+
 
 class Attempt(Base):
     __tablename__ = "attempt"
     user_id = Column(Integer, ForeignKey("user.user_id"))
+    quiz_id = Column(Integer, ForeignKey("quiz.quiz_id"))
     attempt_id = Column(Integer, primary_key=True)
+    attempt_date_time = Column(DateTime)
     correct = Column(Integer)
-    wrong_question_csv = Column(String)
+    wrong_question_answer_json = Column(String)
     total_question = Column(Integer)
-    score = relationship("Score", back_populates="attempt", cascade = "all, delete, delete-orphan")
     user = relationship("User", back_populates="attempt")
-
+    quiz = relationship("Quiz", back_populates="attempt", cascade = "all, delete, delete-orphan", single_parent=True)
 
 
 def db_innit():

@@ -22,11 +22,47 @@
                     sec = 0;
                     min++;
                 }
+                console.log(`${min} == {{quiz.time_duration}}`)
                 if (min == {{quiz.time_duration}}){
-                  document.querySelector([form[id = "transcript"]]).submit()
+                  console.log("time up")
+                  const submitButton = document.getElementById("submit");
+                  submitButton.click();
                 }
-            },1000)
+            },1000);
         }
+
+      function handleOptionClick(qid,oid){
+        const total_question = {{quiz.question|length}};
+        const total_answered = document.querySelectorAll('input[type="radio"]:checked').length;
+        const progress_bar = document.querySelector(".progress-bar");
+        const percentage = (total_answered/total_question)*100;
+        console.log(total_question)
+        console.log(qid)
+        console.log(total_answered)
+        progress_bar.classList.remove('bg-warning','bg-primary', 'bg-success', 'bg-danger');
+        let button = document.getElementById("submit")
+        button.classList.remove('btn-warning','btn-primary', 'btn-success', 'btn-danger')
+
+        if (percentage<33.33){
+          progress_bar.classList.add('bg-danger')
+          button.classList.add('btn-danger')
+        }else if (percentage<66.66){
+          progress_bar.classList.add('bg-warning')
+          button.classList.add('btn-warning')
+        }else if (percentage<100){
+          progress_bar.classList.add('bg-primary')
+          button.classList.add('btn-primary')
+        }else if (percentage>=100){
+          button.classList.add('btn-success')
+          progress_bar.classList.add('bg-success')
+        }
+        progress_bar.style.width = `${percentage}%`
+
+        console.log(`link_${qid}`)
+        const question_link = document.getElementById(`link_${qid}`);
+        question_link.classList.add('bg-success-subtle')
+
+      }
     </script>
     <style>
         .sticky-sidebar {
@@ -53,8 +89,8 @@
       <div class="col-10">
         <div class="progress" id = "progress_bar">
           <div class="progress-bar progress-bar-striped progress-bar-animated" 
-               role="progressbar" aria-valuenow="75" aria-valuemin="0" 
-               aria-valuemax="100" style="width: 75%"></div>
+               role="progressbar" aria-valuemin="0" 
+               aria-valuemax="100" style="width: 0%"></div>
         </div>
       </div>
       <div class="col-2 d-flex justify-content-center">
@@ -65,6 +101,7 @@
     </div>
   </nav>
   <form action = "/user/{{subject_id}}/{{chapter_id}}/{{quiz_id}}" method = "POST" id = "transcript">
+    <input value="{{submiter}}" name = "user_email" form = "transcript" style = "visibility: hidden;"/>
     <div class="container">
         <div class="row">
           <!-- Main content/ questions -->
@@ -79,7 +116,14 @@
               <div class="card-body">
                 {% for option in question.option %}
                 <div class="form-check form-check">
-                  <input class="form-check-input" type="radio" name="{{option_id}}" id="{{option_id}}" value="test?" form = "transcript" >
+                  <input 
+                  class="form-check-input"   
+                  type="radio" 
+                  name="{{question.question_id}}" 
+                  value="{{option.option_id}}" 
+                  id="{{option.option_id}}" 
+                  onclick="handleOptionClick({{question.question_id}}, {{option.option_id}})" 
+                  form = "transcript" >
                   <label class="form-check-label" for="{{option_id}}">{{option.option_text}}</label>
                 </div>
                 {% endfor %}
@@ -94,8 +138,8 @@
                     <ul class="list-group list-group-flush justify-content-center text-center">
 
                       {% for question in quiz.question %}
-                        <a href="#question-{{question.question_id}}" class="question-link" style="text-decoration: none;">
-                          <li class="list-group-item">
+                        <a href="#question-{{question.question_id}}" class="question-link"  style="text-decoration: none;">
+                          <li class="list-group-item" id = "link_{{question.question_id}}">
                           {{loop.index}}
                         </li></a>
                       {% endfor %}
@@ -105,7 +149,7 @@
               </div>
               <div class = "row">
                 <div class="col d-flex justify-content-center">
-                <button class = "btn btn-primary flex-fill">submit</button>
+                <button type = "submit" class = "btn btn-danger flex-fill" id = "submit">submit</button>
                 </div>
               </div>
           </div>

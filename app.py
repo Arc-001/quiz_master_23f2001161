@@ -3,6 +3,13 @@ from flask import Flask, render_template, request
 from flask import redirect,request,url_for
 import flask_login
 from decorator import decorator
+import matplotlib.pyplot
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import json
+
+
 #global login managerW
 login_manager = flask_login.LoginManager()
 
@@ -185,9 +192,74 @@ def user_quiz(subject_id, chapter_id):
 def quiz_test(subject_id, chapter_id, quiz_id):
     session = get_session()
     quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
-    close_session
-    return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id)
+    user_id = flask_login.current_user.id 
+    return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id,submiter = user_id)
 
+
+@app.post('/user/<int:subject_id>/<int:chapter_id>/<quiz_id>')
+@flask_login.login_required
+@redirect_admin
+def quiz_transcript_eval(subject_id,chapter_id,quiz_id):
+    # dic question id <int> -> option id <int>
+    transcript = request.form
+    print(f'{request.form['user_email']}')
+    session = get_session()
+    quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
+    correct_count = 0
+    total_count = 0
+    correct_question_option = {}
+    wrong_question_list = {}
+
+    for question in quiz.question:
+        total_count+=1
+        for option in question.option:
+            if option.is_correct:
+                correct_question_option[question.question_id] = option.option_id
+    
+    for qid in transcript:
+        if qid == "user_email":
+            continue
+        try:
+            if str(transcript[qid]) == str(correct_question_option[int(qid)]):
+                correct_count+=1
+            else:
+                wrong_question_list[qid]=(str(transcript[qid]),str(correct_question_option[int(qid)]))
+        except:
+            continue
+    
+    email = flask_login.current_user.id
+    user = session.query(User).filter_by(email = email).first()
+    user_id = user.user_id
+
+    attempt = Attempt()
+    attempt.attempt_date_time = datetime.now()
+    attempt.user_id = user_id
+    attempt.quiz_id = quiz_id
+    attempt.correct = correct_count
+    attempt.total_question = total_count
+    attempt.wrong_question_answer_json = json.dumps(wrong_question_list)
+    print("----------------------------------------------------------"+json.dumps(wrong_question_list))
+    session.add(attempt)
+    session.commit()
+    
+    #------------User statistic calculation----------------
+    # Create a pie chart for correct vs wrong answers
+    labels = ['Correct', 'Wrong']
+    sizes = [correct_count, total_count - correct_count]
+    colors = ['#4CAF50', '#FF5252']
+    explode = (0.1, 0)  # explode the 'Correct' slice
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors)
+    plt.title('Quiz Result')
+    plt.savefig(f'static/quiz_results_{attempt.attempt_id}_{user_id}.png')
+    plt.close()
+    close_session(session)
+
+
+    return render_template('user_quiz_end_landing.html', result_location = f'static/quiz_results_{attempt.attempt_id}_{user_id}.png', correct = correct_count, total = total_count, wrong = total_count - correct_count, wrong_question_list = wrong_question_list, user_email = email)
+        
+    
 
 #----------------------Admin--------------
 
