@@ -119,11 +119,11 @@ def redirect_admin(f, *args, ** kwargs):
     else:
         return f(*args, **kwargs)
     
-def gen_pi_plot(correct, wrong):
-    labels = ['Correct', 'Wrong']
-    sizes = [correct, wrong]
-    colors = ['#4CAF50', '#FF5252']
-    explode = (0.15, 0)
+def gen_pi_plot(correct, wrong, missing):
+    labels = ['Correct', 'Wrong', 'Missing']
+    sizes = [correct, wrong, missing]
+    colors = ['#4CAF50', '#FF5252','#808080']
+    explode = (0.15, 0, 0)
     plt.figure(figsize=(6, 6))
     plt.pie(sizes, explode=explode, labels=labels, colors=colors)
     plt.title('Quiz Result')
@@ -138,8 +138,10 @@ def get_result_chart(quiz_id, attempt_id):
     session = get_session()
     attempt = session.query(Attempt).filter_by(attempt_id = attempt_id).first()
     right = attempt.correct
-    wrong = attempt.total_question - attempt.correct
-    plt = gen_pi_plot(right,wrong)
+    print(len(eval(attempt.wrong_question_answer_json)))
+    wrong = len(eval(attempt.wrong_question_answer_json))
+    missing = len(eval(attempt.missed_question_json))
+    plt = gen_pi_plot(right,wrong,missing)
     return send_file(plt,mimetype="png")
 
 
@@ -249,6 +251,13 @@ def quiz_transcript_eval(subject_id,chapter_id,quiz_id):
         except:
             continue
     
+    all_qids = [str(question.question_id) for question in quiz.question]
+    missed_qids = [qid  for qid in all_qids if qid not in transcript.keys()]
+    missed_correct_dict = {}
+    for missed_qid in missed_qids:
+        missed_correct_dict[missed_qid] = str(correct_question_option[int(missed_qid)])
+    
+
     email = flask_login.current_user.id
     user = session.query(User).filter_by(email = email).first()
     user_id = user.user_id
@@ -260,6 +269,7 @@ def quiz_transcript_eval(subject_id,chapter_id,quiz_id):
     attempt.correct = correct_count
     attempt.total_question = total_count
     attempt.wrong_question_answer_json = str(wrong_question_list)
+    attempt.missed_question_json = str(missed_correct_dict)
     session.add(attempt)
     session.commit()
     attempt_id = attempt.attempt_id
@@ -273,6 +283,7 @@ def quiz_result(subject_id,chapter_id, quiz_id, attempt_id):
     attempt = session.query(Attempt).filter_by(attempt_id = attempt_id).first()
     quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
     wrong_question_opt = eval(f'{attempt.wrong_question_answer_json}')
+    missing_question_opt = eval(f'{attempt.missed_question_json}')
     wrong_question_statement = {}
     #note we get {qid ->[ wrong_id,correct_id]}
     # this does the wrong_question_opt -> wrong_question_statement conversion
@@ -281,17 +292,65 @@ def quiz_result(subject_id,chapter_id, quiz_id, attempt_id):
         wrong_option = session.query(Option).filter_by(option_id = wrong_question_opt[qid][0]).first()
         correct_option = session.query(Option).filter_by(option_id = wrong_question_opt[qid][1]).first()
         wrong_question_statement[question.question_stmt] = [wrong_option.option_text, correct_option.option_text]
-    
     '''
     {wrong_question_statement -> [answered_option_statement,correct_option_statement]} 
     '''
+    missing_question_statement = {}
+    for qid in missing_question_opt:
+        question = session.query(Question).filter_by(question_id = int(qid)).first()
+        option = session.query(Option).filter_by(option_id = int(missing_question_opt[qid])).first()
+        missing_question_statement[question.question_stmt] = option.option_text
 
     return render_template(
     'user_quiz_end_landing.html',
     attempt_id = attempt_id,
     quiz_id = quiz_id,
-    questions = wrong_question_statement
+    questions = wrong_question_statement,
+    missing = missing_question_statement
     )
+
+@app.get("/user/result")
+@flask_login.login_required
+def get_result_home():
+    session  = get_session()
+    subjects = session.query(Subject).all()
+    user = session.query(User).filter_by(email = flask_login.current_user.id).first()
+    close_session(session)
+    return render_template("user_result_subjects.html",subjects = subjects, name = user.username)
+
+
+
+@app.get("/user/<int:subject_id>/result")
+@flask_login.login_required
+def get_result_chapters(subject_id):
+    session = get_session()
+    chapters = session.query(Chapter).filter_by(Subject_id = subject_id).all()
+    user = session.query(User).filter_by(email = flask_login.current_user.id).first()
+    return render_template("user_result_chapters.html",name = user.username, chapters = chapters, subject_id = subject_id)
+
+
+@app.get("/user/<int:subject_id>/<int:chapter_id>/result")
+@flask_login.login_required
+def get_result_quizzes(subject_id,chapter_id):
+    session = get_session()
+    quiz = session.query(Quiz).filter_by(chapter_id = chapter_id).all()
+    user = session.query(User).filter_by(email = flask_login.current_user.id).first()
+    attempts = user.attempt
+    marks_lst = []
+    for attempt in attempts:
+        marks_lst.append(attempt.correct)
+    
+
+    return render_template(
+        "user_result_quiz.html",
+        name = user.username, 
+        subject_id = subject_id, 
+        chapter_id = chapter_id, 
+        quizzes = quiz,
+        user_attempts = attempts,
+        marks = marks_lst
+        )
+    
 
 
 #----------------------Admin--------------

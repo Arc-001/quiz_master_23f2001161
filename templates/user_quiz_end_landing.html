@@ -18,45 +18,61 @@
                 <a href = '/home'>
                     <button type="button" class="btn btn-outline-info">Go to home</button>
                 </a>
-              </div>
-              <div class="col-md-4 p-3 text-center">
-                {{name}}
+               </div>
+                <div class="col-md-4 p-3 text-center">
+                    {{name}}
                 </div>
-              <div class="col-md-4 p-3 text-end">
-                <a href="/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
-              </div>
+                <div class="col-md-4 p-3 text-end">
+                    <a href="/logout"><button type="button" class="btn btn-outline-danger">Logout</button></a>
+                </div>
             </div>
-          </div>
-          <hr>
         </div>
+        <hr>
+    </div>
 
-    <div class = "container-fluid mt-3">
+    <div class = "container mt-3">
         <div class = "row">
             <div class = "col d-flex justify-content-center">
-                <img src = "/user/{{quiz_id}}/{{attempt_id}}/get_pi_fig" class = "border-1"/>
+                <img src = "/user/{{quiz_id}}/{{attempt_id}}/get_pi_fig" class = "img-fluid"/>
             </div>
         </div>
     </div>
 
-
+    <div class = "container md-12">
         <div class = "row">
-            <div class = "row">
-                <div class="col d-flex justify-content-center bg-secondary-subtle rounded">
-                    <p>Wrong selections</p>
-                </div>
+            <div class="col d-flex justify-content-center bg-secondary-subtle rounded">
+                <p>Wrong selections</p>
             </div>
-            <div class = "col- d-flex justify-content-center">
-                {% for question in questions %}
+        </div>
+        <div class = "col-sm d-flex justify-content-center">
+            {% for question in questions %}
+            <div class="card h-100 flex-fill m-2 shadow-sm">
+                <div class="card-header bg-primary-subtle">
+                    {{question}}
+                </div>
+                <div class="card-body bg-danger-subtle md-2">
+                    <p class="card-text"><strong>Wrong: </strong> {{questions[question][0]}}</p>
+                </div>
+                <div class="card-footer bg-success-subtle md-2">
+                    <p class="card-text"><strong>Correct: </strong>{{questions[question][1]}}</p>
+                </div> 
+            </div>
+            {% endfor %}
+        </div>
+        <div class = "row">
+            <div class="col d-flex justify-content-center bg-secondary-subtle rounded">
+                <p>Wrong selections</p>
+            </div>
+        </div>
+            <div class = "col d-flex justify-content-center">
+                {% for question in missing %}
                 <div class="card h-100 flex-fill m-2 shadow-sm">
                     <div class="card-header bg-primary-subtle">
                         {{question}}
                     </div>
-                    <div class="card-body bg-danger-subtle md-2">
-                        <p class="card-text"><strong>Wrong: </strong> {{questions[question][0]}}</p>
+                    <div class="card-body bg-success-subtle md-2">
+                        <p class="card-text"><strong>Correct: </strong>{{missing[question]}}</p>
                     </div>
-                    <div class="card-footer bg-success-subtle md-2">
-                        <p class="card-text"><strong>Correct: </strong>{{questions[question][1]}}</p>
-                    </div> 
                 </div>
                 {% endfor %}
             </div>
