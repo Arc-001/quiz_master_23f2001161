@@ -1,10 +1,11 @@
 from models.database_innit import *
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,send_file
 from flask import redirect,request,url_for
 import flask_login
 from decorator import decorator
 import matplotlib.pyplot
 import matplotlib
+import io
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import json
@@ -118,7 +119,28 @@ def redirect_admin(f, *args, ** kwargs):
     else:
         return f(*args, **kwargs)
     
+def gen_pi_plot(correct, wrong):
+    labels = ['Correct', 'Wrong']
+    sizes = [correct, wrong]
+    colors = ['#4CAF50', '#FF5252']
+    explode = (0.15, 0)
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors)
+    plt.title('Quiz Result')
+    img = io.BytesIO()
+    plt.savefig(img,format='png')
+    img.seek(0)
+    return img
 
+@app.get("/user/<int:quiz_id>/<int:attempt_id>/get_pi_fig")
+@flask_login.login_required
+def get_result_chart(quiz_id, attempt_id):
+    session = get_session()
+    attempt = session.query(Attempt).filter_by(attempt_id = attempt_id).first()
+    right = attempt.correct
+    wrong = attempt.total_question - attempt.correct
+    plt = gen_pi_plot(right,wrong)
+    return send_file(plt,mimetype="png")
 
 
 #---------------------Login Routes (/)------------------
@@ -196,7 +218,7 @@ def quiz_test(subject_id, chapter_id, quiz_id):
     return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id,submiter = user_id)
 
 
-@app.post('/user/<int:subject_id>/<int:chapter_id>/<quiz_id>')
+@app.post('/user/<int:subject_id>/<int:chapter_id>/<int:quiz_id>')
 @flask_login.login_required
 @redirect_admin
 def quiz_transcript_eval(subject_id,chapter_id,quiz_id):
@@ -237,29 +259,40 @@ def quiz_transcript_eval(subject_id,chapter_id,quiz_id):
     attempt.quiz_id = quiz_id
     attempt.correct = correct_count
     attempt.total_question = total_count
-    attempt.wrong_question_answer_json = json.dumps(wrong_question_list)
-    print("----------------------------------------------------------"+json.dumps(wrong_question_list))
+    attempt.wrong_question_answer_json = str(wrong_question_list)
     session.add(attempt)
     session.commit()
-    
-    #------------User statistic calculation----------------
-    # Create a pie chart for correct vs wrong answers
-    labels = ['Correct', 'Wrong']
-    sizes = [correct_count, total_count - correct_count]
-    colors = ['#4CAF50', '#FF5252']
-    explode = (0.1, 0)  # explode the 'Correct' slice
-
-    plt.figure(figsize=(6, 6))
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors)
-    plt.title('Quiz Result')
-    plt.savefig(f'static/quiz_results_{attempt.attempt_id}_{user_id}.png')
-    plt.close()
+    attempt_id = attempt.attempt_id
     close_session(session)
-
-
-    return render_template('user_quiz_end_landing.html', result_location = f'static/quiz_results_{attempt.attempt_id}_{user_id}.png', correct = correct_count, total = total_count, wrong = total_count - correct_count, wrong_question_list = wrong_question_list, user_email = email)
-        
+    return redirect(f'/user/{subject_id}/{chapter_id}/{quiz_id}/{attempt_id}/result')
     
+@app.get("/user/<int:subject_id>/<int:chapter_id>/<int:quiz_id>/<int:attempt_id>/result")
+@flask_login.login_required
+def quiz_result(subject_id,chapter_id, quiz_id, attempt_id):
+    session = get_session()
+    attempt = session.query(Attempt).filter_by(attempt_id = attempt_id).first()
+    quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
+    wrong_question_opt = eval(f'{attempt.wrong_question_answer_json}')
+    wrong_question_statement = {}
+    #note we get {qid ->[ wrong_id,correct_id]}
+    # this does the wrong_question_opt -> wrong_question_statement conversion
+    for qid in wrong_question_opt:
+        question = session.query(Question).filter_by(question_id = qid).first()
+        wrong_option = session.query(Option).filter_by(option_id = wrong_question_opt[qid][0]).first()
+        correct_option = session.query(Option).filter_by(option_id = wrong_question_opt[qid][1]).first()
+        wrong_question_statement[question.question_stmt] = [wrong_option.option_text, correct_option.option_text]
+    
+    '''
+    {wrong_question_statement -> [answered_option_statement,correct_option_statement]} 
+    '''
+
+    return render_template(
+    'user_quiz_end_landing.html',
+    attempt_id = attempt_id,
+    quiz_id = quiz_id,
+    questions = wrong_question_statement
+    )
+
 
 #----------------------Admin--------------
 
