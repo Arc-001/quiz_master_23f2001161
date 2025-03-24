@@ -3,8 +3,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship,backref,sessionmaker
 from sqlalchemy.orm import Session
 from datetime import datetime
 import flask_login
-from werkzeug.security import generate_password_hash, check_password_hash
-
+from werkzeug.security import generate_password_hash
 
 engine = create_engine('sqlite:///main.db', echo=True)
 

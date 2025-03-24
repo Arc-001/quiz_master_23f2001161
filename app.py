@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import json
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from api import *
 
 #global login managerW
 login_manager = flask_login.LoginManager()
@@ -19,8 +19,8 @@ login_manager = flask_login.LoginManager()
 
 app = Flask(__name__)
 
-app.secret_key = 'super secret string'
-
+app.secret_key = 'This is something I should probably use a random string for but mhy typos are random enough XDD'
+init_api(app)
 
 #-----------------------login_innit-------------------------
 
@@ -190,8 +190,19 @@ def login_post():
 def home():
     session = get_session()
     subjects = session.query(Subject).all()
+    # subject_id -> [date(next deadline), next_quiz_name]
+    quiz_list = {}
+    for subject in subjects:
+        temp = []
+        for chapter in subject.Chapters:
+            for quiz in chapter.quizes:
+                if quiz.date_of_quiz >= ((datetime.now()).date()):
+                    temp.append((quiz.date_of_quiz, quiz.name))
+        
+        quiz_list[subject.subject_id] = min(temp, key = lambda x: x[0]) if temp else None
+                
     close_session(session)
-    return render_template('home.html', name = flask_login.current_user.id, subjects = subjects)
+    return render_template('home.html', name = flask_login.current_user.id, subjects = subjects, next_quiz_map = quiz_list)
 
 
 @app.get('/user/<int:subject_id>')
@@ -200,8 +211,17 @@ def home():
 def user_chapters(subject_id):
     session = get_session()
     chapters = session.query(Chapter).filter_by(Subject_id = subject_id).all()
+    quiz_list = {}
+    for chapter in chapters:
+        temp = []
+        for quiz in chapter.quizes:
+            if quiz.date_of_quiz >=((datetime.now()).date()):
+                temp.append((quiz.date_of_quiz, quiz.name))
+        
+        quiz_list[chapter.chapter_id] = min(temp, key= lambda x:x[0]) if temp else None
+    
     close_session(session)
-    return render_template('user_chapters.html', name = flask_login.current_user.id, chapters = chapters, subject_id = subject_id)
+    return render_template('user_chapters.html', name = flask_login.current_user.id, chapters = chapters, subject_id = subject_id, next_quiz_map = quiz_list)
 
 @app.get('/user/<int:subject_id>/<int:chapter_id>')
 @flask_login.login_required

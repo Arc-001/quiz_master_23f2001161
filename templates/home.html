@@ -45,7 +45,14 @@
                   <div class="card-footer bg-danger-subtle">
                       <div class = "d-flex justify-content-center">
                           <!-- <a href = "/admin/{{subject.subject_id}}"><button type = "button" class = "btn btn-success">Go in</button></a> -->
-                           <div class = "card-text"> TODO: ADD a reference to upcomming quiz if time permits </div>
+                           {% if next_quiz_map[subject.subject_id] %}
+                          <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-warning-subtle rounded border-1 shadow mb-1">Next Quiz on : {{next_quiz_map[subject.subject_id][1]}}</li>
+                            <li class="list-group-item bg-warning-subtle rounded border-1 shadow">Date : {{next_quiz_map[subject.subject_id][0]}}</li>
+                          </ul>
+                          {% else %}
+                          <card-text> No upcomming quiz </card-text>
+                          {% endif %}
                       </div>
                   </div> 
               </div>

@@ -43,10 +43,17 @@
                       <p class="card-text">{{chapter.description}}</p>
                   </div>
                   <div class="card-footer bg-danger-subtle">
-                      <div class = "d-flex justify-content-center">
-                           <div class = "card-text"> TODO: ADD a reference to upcomming quiz if time permits </div>
-                      </div>
-                  </div> 
+                    <div class = "d-flex justify-content-center">
+                         {% if next_quiz_map[chapter.chapter_id] %}
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item bg-warning-subtle rounded border-1 shadow mb-1">Next Quiz on : {{next_quiz_map[chapter.chapter_id][1]}}</li>
+                          <li class="list-group-item bg-warning-subtle rounded border-1 shadow">Date : {{next_quiz_map[chapter.chapter_id][0]}}</li>
+                        </ul>
+                        {% else %}
+                        <card-text> No upcomming quiz </card-text>
+                        {% endif %}
+                    </div>
+                </div>
               </div>
           </div>
           </a>
