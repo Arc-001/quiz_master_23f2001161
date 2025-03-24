@@ -3,6 +3,8 @@ from sqlalchemy.orm import DeclarativeBase, relationship,backref,sessionmaker
 from sqlalchemy.orm import Session
 from datetime import datetime
 import flask_login
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 engine = create_engine('sqlite:///main.db', echo=True)
 
@@ -101,7 +103,7 @@ def db_innit():
     result = session.query(User).filter_by(username = "admin").first()
     if result == None:
         print("Creating default admin, username: admin, password: admin, Please change password after login")
-        default_admin = User(full_name = "admin",email = 'admin@admin.in', username = "admin", password = "admin", is_admin = 1)
+        default_admin = User(full_name = "admin",email = 'admin@admin.in', username = "admin", password = generate_password_hash("admin"), is_admin = 1)
         session.add(default_admin)
         session.commit()
     session.close()

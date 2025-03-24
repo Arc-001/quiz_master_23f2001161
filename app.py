@@ -10,6 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import json
 import random
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 #global login managerW
@@ -84,8 +85,8 @@ def register(form_):
                     email = form_['email'], 
                     username = form_['username'],
                     qualification = form_['qualification'] + ' | ' + request.form['qualification_info'], 
-                    date_of_birth = datetime.strptime(form_['DOB'], '%m/%d/%Y').date(), 
-                    password = form_['password']
+                    date_of_birth = datetime.strptime(form_['DOB'],'%Y-%m-%d').date(), 
+                    password = generate_password_hash(form_['password'])
         )
         session.add(new_user)
         session.commit()
@@ -165,7 +166,7 @@ def login_post():
     close_session(session)
 
     if in_db:
-        if in_db.password == password:
+        if check_password_hash(in_db.password, password):
             user_ = User()
             user_.id = email
             flask_login.login_user(user_)
@@ -209,7 +210,14 @@ def user_quiz(subject_id, chapter_id):
     session = get_session()
     quizzes = session.query(Quiz).filter_by(chapter_id = chapter_id).all()
     close_session(session)
-    return render_template('user_quizes.html', name = flask_login.current_user.id, quizzes = quizzes, subject_id = subject_id, chapter_id = chapter_id)
+    date_now = datetime.now().date()
+    return render_template(
+        'user_quizes.html',
+        name = flask_login.current_user.id, 
+        quizzes = quizzes, 
+        subject_id = subject_id, 
+        chapter_id = chapter_id,
+        date_now = date_now)
 
 @app.get('/user/<int:subject_id>/<int:chapter_id>/<int:quiz_id>')
 @flask_login.login_required
@@ -403,7 +411,8 @@ def edit_user():
         print(2)
         user_.email = request.form['email']
         print(3)
-        user_.password = request.form['password']
+        if request.form['password'] != user_.password:
+            user_.password = generate_password_hash(request.form['password'])
         print(4)
         user_.date_of_birth = datetime.strptime(str(request.form['DOB']), '%Y-%m-%d').date()
         print(5)

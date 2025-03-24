@@ -135,7 +135,7 @@
                     <td>{{i.full_name}}</td>
                     <td>{{i.username}}</td>
                     <td>{{i.email}}</td>
-                    <td>{{i.password}}</td>
+                    <td>{{i.password[:11]}}</td>
                     <td>{{i.date_of_birth}}</td>
                     <td>{{i.qualification}}</td>
                     <td><button class = "btn btn-primary" onclick="edit_user('{{i.user_id}}','{{i.full_name}}','{{i.username}}','{{i.email}}')">Edit</button> <strong>|</strong> <a href = "/admin/edit_user/delete/{{i.user_id}}" ><button class = "btn btn-danger">Delete</button></a></td>

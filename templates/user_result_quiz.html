@@ -67,9 +67,11 @@
                             <p class="card-text">Attempts: {{user_attempts | length}}</p></br>
                             <ul class="list-group list-group-flush">
                                 {% for attempt in user_attempts %}
+                                {% if attempt.quiz_id == quiz.quiz_id %}
                                 <a style = "text-decoration: none;" class = "attempt-link" href = "/user/{{subject_id}}/{{chapter_id}}/{{quiz.quiz_id}}/{{attempt.attempt_id}}/result">
                                 <li class="list-group-item">In attempt {{loop.index}} |<span class="bg-success-subtle rounded p-1"> Correct:{{attempt.correct}}</span> | <span class="bg-danger-subtle rounded p-1">Wrong:{{attempt.total_question - attempt.correct}}</span></li>
                                 </a>
+                                {% endif %}
                                 {% endfor %}
                             </ul>
                         </div>

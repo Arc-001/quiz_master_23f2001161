@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Quizzes</title>
+    <title>User Quizzes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
-
-
 </head>
 <body>
 
@@ -34,11 +31,17 @@
     </div>
 
     <div class="container py-4">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class = "row flex-fill">
+            <div class = "col rounded md-8 justify-content-center  text-center bg-light py-3 mb-2">
+                <span class = "bg-primary-subtle rounded shadow">Upcomming quiz</span>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 py-4 bg-info-subtle">
             {% for quiz in quizzes %}
+            {% if quiz.date_of_quiz >= date_now %}
             <a style = "text-decoration: none;" href = "/user/{{subject_id}}/{{chapter_id}}/{{quiz.quiz_id}}">
             <div class="col" id="{{quiz.quiz_id}}">
-                <div class="card h-100">
+                <div class="card h-100 shadow">
                     <div class="card-header bg-success-subtle">
                         {{quiz.quiz_id}} ) {{quiz.name}}
                     </div>
@@ -56,6 +59,43 @@
                 </div>
             </div>
             </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+    <div class="container py-4 mt-5">
+        <div class = "row flex-fill">
+            <div class = "col rounded md-8 justify-content-center  text-center bg-light py-3 mb-2">
+                <span class = "bg-danger-subtle rounded shadow">Passed Quiz</span>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 bg-danger-subtle py-4">
+            {% for quiz in quizzes %}
+            {% if quiz.date_of_quiz < date_now %}
+            <a style = "text-decoration: none;" href = "/user/{{subject_id}}/{{chapter_id}}/{{quiz.quiz_id}}">
+            <div class="col" id="{{quiz.quiz_id}}">
+                <div class="card h-100 shadow">
+                    <div class="card-header bg-success-subtle">
+                        {{quiz.quiz_id}} ) {{quiz.name}}
+                    </div>
+                    <div class="card-body bg-warning-subtle">
+                        
+                        <p class="card-text"><strong>Date:</strong> {{quiz.date_of_quiz}}</p>
+                        <p class="card-text"><strong>Duration:</strong> {{quiz.time_duration}}</p>
+                        <p class="card-text"><strong>Remarks:</strong> {{quiz.remarks}}</p>
+                    </div>
+                    <div class="card-footer bg-info-subtle">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="card-text">{{quiz.description}}</p>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            </a>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
