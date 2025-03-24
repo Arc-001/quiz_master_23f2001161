@@ -1,2 +1,4 @@
 main.db
 quizmaster_23f2001161
+__pycache__
+models/__pycache__
