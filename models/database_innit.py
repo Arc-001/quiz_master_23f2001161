@@ -45,7 +45,7 @@ class Quiz(Base):
 class Question(Base):
     __tablename__ = "question"
     question_id = Column(Integer, primary_key = True, autoincrement = True)
-    quiz_id = Column(Integer, ForeignKquestionsey('quiz.quiz_id'))
+    quiz_id = Column(Integer, ForeignKey('quiz.quiz_id'))
     question_stmt = Column(String, nullable = False)
     quiz = relationship("Quiz", back_populates="question")
     option = relationship("Option", back_populates="question", cascade = "all, delete, delete-orphan")

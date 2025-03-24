@@ -114,19 +114,19 @@
                 
               </div>
               <div class="card-body">
-                {% for option in question.option %}
-                <div class="form-check form-check">
-                  <input 
-                  class="form-check-input"   
-                  type="radio" 
-                  name="{{question.question_id}}" 
-                  value="{{option.option_id}}" 
-                  id="{{option.option_id}}" 
-                  onclick="handleOptionClick({{question.question_id}}, {{option.option_id}})" 
-                  form = "transcript" >
-                  <label class="form-check-label" for="{{option_id}}">{{option.option_text}}</label>
-                </div>
-                {% endfor %}
+                  {% for option in options[question.question_id] %}
+                  <div class="form-check form-check">
+                    <input 
+                    class="form-check-input"   
+                    type="radio" 
+                    name="{{question.question_id}}" 
+                    value="{{option[0]}}" 
+                    id="{{option[0]}}" 
+                    onclick="handleOptionClick({{question.question_id}}, {{option[0]}})" 
+                    form = "transcript" >
+                    <label class="form-check-label" for="{{option[0]}}">{{option[1]}}</label>
+                  </div>
+                  {% endfor %}
               </div>
             </div>
             {% endfor %}

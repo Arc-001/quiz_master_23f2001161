@@ -9,6 +9,7 @@ import io
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import json
+import random
 
 
 #global login managerW
@@ -216,8 +217,16 @@ def user_quiz(subject_id, chapter_id):
 def quiz_test(subject_id, chapter_id, quiz_id):
     session = get_session()
     quiz = session.query(Quiz).filter_by(quiz_id = quiz_id).first()
-    user_id = flask_login.current_user.id 
-    return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id,submiter = user_id)
+    user_id = flask_login.current_user.id
+    options = {}
+    for question in quiz.question:
+        options_ = question.option
+        options[question.question_id] = [(option.option_id, option.option_text ) for option in options_]
+    print(f"---------------------------------------------------{options}")
+    for qid in options:
+        random.shuffle(options[qid])
+    print(f"------------------------------------------------------{options}")
+    return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id,submiter = user_id, options = options)
 
 
 @app.post('/user/<int:subject_id>/<int:chapter_id>/<int:quiz_id>')
