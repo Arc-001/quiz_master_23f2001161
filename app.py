@@ -250,10 +250,8 @@ def quiz_test(subject_id, chapter_id, quiz_id):
     for question in quiz.question:
         options_ = question.option
         options[question.question_id] = [(option.option_id, option.option_text ) for option in options_]
-    print(f"---------------------------------------------------{options}")
     for qid in options:
         random.shuffle(options[qid])
-    print(f"------------------------------------------------------{options}")
     return render_template("user_quiz.html", quiz = quiz, subject_id = subject_id, chapter_id = chapter_id, quiz_id = quiz_id,submiter = user_id, options = options)
 
 
@@ -426,20 +424,13 @@ def edit_user():
         user_ = session.query(User).filter_by(user_id = request.form["user_id"]).first()
         print(user_.user_id)
         user_.full_name = request.form['full_name']
-        print(1)
         user_.username = request.form['username']
-        print(2)
         user_.email = request.form['email']
-        print(3)
         if request.form['password'] != user_.password:
             user_.password = generate_password_hash(request.form['password'])
-        print(4)
         user_.date_of_birth = datetime.strptime(str(request.form['DOB']), '%Y-%m-%d').date()
-        print(5)
         user_.qualification = request.form['qualification_info']
-        print(6)
         session.commit()
-        print(7)
         return redirect(url_for('admin_edit_user'))
     except:
         return 'Internal server error', 500
@@ -500,15 +491,11 @@ def admin_subjects():
 @check_admin
 def del_subject(subject_id):
     session = get_session()
-    print(1)
     subject = session.query(Subject).filter_by(subject_id = subject_id).first()
     print(subject.subject_id)
-    print(2)
     session.delete(subject)
-    print(3)
     session.commit()
     session.close()
-    print(4)
     return redirect(url_for("admin_subjects"))
 
 @app.post("/admin/subject/edit")
@@ -619,16 +606,10 @@ def admin_add_quiz(subject_id, chapter_id):
         quiz = Quiz()
         quiz.chapter_id = chapter_id
         quiz.name = request.form["quiz_name"]
-        print(1)
         quiz.description = request.form["quiz_description"]
-        print(2)
-        print(request.form["date_of_quiz"])
         quiz.date_of_quiz = datetime.strptime(request.form["date_of_quiz"],'%Y-%m-%d').date()
-        print(3)
         quiz.remarks = request.form["remarks"]
-        print(4)
         quiz.time_duration = request.form["time_duration"]
-        print(5)
         session.add(quiz)
         session.commit()
         return redirect(f'/admin/{subject_id}/{chapter_id}')
